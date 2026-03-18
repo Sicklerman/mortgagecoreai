@@ -7,512 +7,205 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --navy:       #0D1F3C;
-      --navy-lt:    #1E3A5F;
-      --navy-xlt:   #2A4A72;
-      --gold:       #C8A951;
-      --gold-lt:    #E0C070;
-      --gold-dim:   rgba(200,169,81,0.15);
-      --green:      #22c55e;
-      --amber:      #f59e0b;
-      --red:        #ef4444;
-      --sky:        #38bdf8;
-      --text:       #e2e8f0;
-      --muted:      #94a3b8;
-      --border:     rgba(255,255,255,0.08);
-      --card-bg:    #1E3A5F;
-      --sidebar-w:  220px;
-      --topnav-h:   56px;
+      --navy:#0D1F3C; --navy-lt:#1E3A5F; --navy-xlt:#2A4A72;
+      --gold:#C8A951; --gold-lt:#E0C070; --gold-dim:rgba(200,169,81,0.15);
+      --green:#22c55e; --amber:#f59e0b; --red:#ef4444; --sky:#38bdf8;
+      --text:#e2e8f0; --muted:#94a3b8; --border:rgba(255,255,255,0.08);
+      --card-bg:#1E3A5F; --sidebar-w:220px; --topnav-h:56px;
     }
+    html,body { height:100%; font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:var(--navy); color:var(--text); font-size:14px; overflow:hidden; }
 
-    html, body {
-      height: 100%;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: var(--navy);
-      color: var(--text);
-      font-size: 14px;
-      overflow: hidden;
-    }
+    /* NAV */
+    .topnav { position:fixed; top:0; left:0; right:0; height:var(--topnav-h); background:rgba(13,31,60,0.96); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 20px; gap:32px; z-index:100; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+    .logo { display:flex; align-items:center; gap:9px; flex-shrink:0; }
+    .logo-icon { width:34px; height:34px; background:var(--gold-dim); border:1px solid var(--gold); border-radius:8px; display:flex; align-items:center; justify-content:center; }
+    .logo-icon svg { width:18px; height:18px; }
+    .logo-text { font-size:15px; font-weight:700; color:#fff; letter-spacing:-0.3px; }
+    .logo-text span { color:var(--gold); }
+    .nav-links { display:flex; align-items:center; gap:4px; flex:1; }
+    .nav-link { padding:6px 14px; border-radius:6px; color:var(--muted); font-size:13px; font-weight:500; cursor:pointer; transition:background .15s,color .15s; white-space:nowrap; -webkit-user-select:none; user-select:none; }
+    .nav-link:hover { background:rgba(255,255,255,0.06); color:var(--text); }
+    .nav-link.active { background:var(--gold-dim); color:var(--gold); }
+    .nav-right { display:flex; align-items:center; gap:12px; flex-shrink:0; }
+    .ai-badge { display:flex; align-items:center; gap:6px; background:rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.3); border-radius:20px; padding:4px 10px; font-size:11px; font-weight:600; color:var(--green); }
+    .pulse-dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.8s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.75)} }
+    .avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--gold),#8B6914); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--navy); cursor:pointer; }
 
-    /* ── TOP NAV ─────────────────────────────────────────────── */
-    .topnav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: var(--topnav-h);
-      background: rgba(13,31,60,0.95);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      gap: 32px;
-      z-index: 100;
-      backdrop-filter: blur(8px);
-    }
+    /* LAYOUT */
+    .layout { display:flex; height:100vh; padding-top:var(--topnav-h); }
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      flex-shrink: 0;
-    }
-    .logo-icon {
-      width: 34px; height: 34px;
-      background: var(--gold-dim);
-      border: 1px solid var(--gold);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .logo-icon svg { width: 18px; height: 18px; }
-    .logo-text {
-      font-size: 15px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.3px;
-    }
-    .logo-text span { color: var(--gold); }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex: 1;
-    }
-    .nav-link {
-      padding: 6px 14px;
-      border-radius: 6px;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-      white-space: nowrap;
-    }
-    .nav-link:hover { background: rgba(255,255,255,0.06); color: var(--text); }
-    .nav-link.active { background: var(--gold-dim); color: var(--gold); }
-
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-    .ai-badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(34,197,94,0.12);
-      border: 1px solid rgba(34,197,94,0.3);
-      border-radius: 20px;
-      padding: 4px 10px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--green);
-      letter-spacing: 0.3px;
-    }
-    .pulse-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--green);
-      animation: pulse 1.8s infinite;
-    }
-    @keyframes pulse {
-      0%,100% { opacity:1; transform:scale(1); }
-      50% { opacity:0.5; transform:scale(0.75); }
-    }
-
-    .avatar {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--gold) 0%, #8B6914 100%);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 700; color: var(--navy);
-      cursor: pointer;
-    }
-
-    /* ── LAYOUT ──────────────────────────────────────────────── */
-    .layout {
-      display: flex;
-      height: 100vh;
-      padding-top: var(--topnav-h);
-    }
-
-    /* ── SIDEBAR ─────────────────────────────────────────────── */
-    .sidebar {
-      width: var(--sidebar-w);
-      flex-shrink: 0;
-      background: rgba(13,31,60,0.7);
-      border-right: 1px solid var(--border);
-      padding: 20px 0;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .sidebar-section {
-      padding: 0 12px;
-      margin-bottom: 8px;
-    }
-    .sidebar-label {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--muted);
-      padding: 0 6px;
-      margin-bottom: 6px;
-    }
-
-    .sidebar-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .sidebar-item:hover { background: rgba(255,255,255,0.05); }
-    .sidebar-item.active { background: var(--gold-dim); }
-
-    .sidebar-item-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .stage-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .sidebar-item-name {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text);
-    }
-    .sidebar-item.active .sidebar-item-name { color: var(--gold); }
-    .stage-count {
-      font-size: 11px;
-      font-weight: 700;
-      background: rgba(255,255,255,0.08);
-      color: var(--muted);
-      border-radius: 10px;
-      padding: 1px 7px;
-    }
-    .sidebar-item.active .stage-count {
-      background: var(--gold-dim);
-      color: var(--gold);
-    }
-
-    .sidebar-divider {
-      height: 1px;
-      background: var(--border);
-      margin: 8px 16px;
-    }
-
-    .sidebar-nav-item {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 8px 18px;
-      cursor: pointer;
-      border-radius: 8px;
-      margin: 0 12px;
-      transition: background 0.15s;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .sidebar-nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    /* SIDEBAR */
+    .sidebar { width:var(--sidebar-w); flex-shrink:0; background:rgba(13,31,60,0.7); border-right:1px solid var(--border); padding:20px 0; overflow-y:auto; display:flex; flex-direction:column; gap:4px; }
+    .sidebar-section { padding:0 12px; margin-bottom:8px; }
+    .sidebar-label { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); padding:0 6px; margin-bottom:6px; }
+    .sidebar-item { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:8px; cursor:pointer; transition:background .15s; -webkit-user-select:none; user-select:none; }
+    .sidebar-item:hover { background:rgba(255,255,255,0.05); }
+    .sidebar-item.active { background:var(--gold-dim); }
+    .sidebar-item-left { display:flex; align-items:center; gap:8px; }
+    .stage-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .sidebar-item-name { font-size:13px; font-weight:500; color:var(--text); }
+    .sidebar-item.active .sidebar-item-name { color:var(--gold); }
+    .stage-count { font-size:11px; font-weight:700; background:rgba(255,255,255,0.08); color:var(--muted); border-radius:10px; padding:1px 7px; }
+    .sidebar-item.active .stage-count { background:var(--gold-dim); color:var(--gold); }
+    .sidebar-divider { height:1px; background:var(--border); margin:8px 16px; }
+    .sidebar-nav-item { display:flex; align-items:center; gap:9px; padding:8px 18px; cursor:pointer; border-radius:8px; margin:0 12px; transition:background .15s; color:var(--muted); font-size:13px; font-weight:500; -webkit-user-select:none; user-select:none; }
+    .sidebar-nav-item:hover { background:rgba(255,255,255,0.05); color:var(--text); }
     .sidebar-nav-item svg { width:15px; height:15px; flex-shrink:0; }
 
-    /* ── MAIN CONTENT ────────────────────────────────────────── */
-    .main {
-      flex: 1;
-      overflow-y: auto;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+    /* MAIN */
+    .main { flex:1; overflow-y:auto; padding:24px; display:flex; flex-direction:column; gap:20px; }
 
-    /* ── PAGE HEADER ─────────────────────────────────────────── */
-    .page-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-    }
-    .page-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.4px;
-    }
-    .page-subtitle {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 3px;
-    }
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: opacity 0.15s;
-    }
-    .btn:hover { opacity: 0.88; }
-    .btn-gold { background: var(--gold); color: var(--navy); }
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-    }
-    .btn-outline:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+    /* VIEWS — only active view visible */
+    .view { display:none; flex-direction:column; gap:20px; }
+    .view.active { display:flex; }
 
-    /* ── KPI CARDS ───────────────────────────────────────────── */
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
+    /* PAGE HEADER */
+    .page-header { display:flex; align-items:flex-start; justify-content:space-between; }
+    .page-title { font-size:22px; font-weight:700; color:#fff; letter-spacing:-.4px; }
+    .page-subtitle { font-size:13px; color:var(--muted); margin-top:3px; }
+    .header-right { display:flex; align-items:center; gap:10px; }
+    .btn { display:flex; align-items:center; gap:6px; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:opacity .15s; }
+    .btn:hover { opacity:.88; }
+    .btn-gold { background:var(--gold); color:var(--navy); }
+    .btn-outline { background:transparent; border:1px solid var(--border); color:var(--muted); cursor:pointer; }
+    .btn-outline:hover { color:var(--text); border-color:rgba(255,255,255,.2); }
 
-    .kpi-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px 20px;
-      position: relative;
-      overflow: hidden;
-    }
-    .kpi-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-    }
-    .kpi-card.gold::before { background: linear-gradient(90deg, var(--gold), transparent); }
-    .kpi-card.green::before { background: linear-gradient(90deg, var(--green), transparent); }
-    .kpi-card.sky::before { background: linear-gradient(90deg, var(--sky), transparent); }
-    .kpi-card.amber::before { background: linear-gradient(90deg, var(--amber), transparent); }
+    /* KPI CARDS */
+    .kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+    .kpi-card { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:18px 20px; position:relative; overflow:hidden; }
+    .kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+    .kpi-card.gold::before { background:linear-gradient(90deg,var(--gold),transparent); }
+    .kpi-card.green::before { background:linear-gradient(90deg,var(--green),transparent); }
+    .kpi-card.sky::before { background:linear-gradient(90deg,var(--sky),transparent); }
+    .kpi-card.amber::before { background:linear-gradient(90deg,var(--amber),transparent); }
+    .kpi-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-bottom:10px; }
+    .kpi-value { font-size:28px; font-weight:800; color:#fff; letter-spacing:-.8px; line-height:1; }
+    .kpi-delta { margin-top:8px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:4px; }
+    .kpi-delta.up { color:var(--green); }
+    .kpi-delta.down { color:var(--red); }
 
-    .kpi-label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-    .kpi-value {
-      font-size: 28px;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: -0.8px;
-      line-height: 1;
-    }
-    .kpi-card.gold .kpi-value { color: var(--gold); }
-    .kpi-delta {
-      margin-top: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .kpi-delta.up { color: var(--green); }
-    .kpi-delta.down { color: var(--red); }
+    /* MIDDLE ROW */
+    .middle-row { display:grid; grid-template-columns:1fr 300px; gap:16px; align-items:start; }
 
-    /* ── MIDDLE ROW (chart + AI briefing) ────────────────────── */
-    .middle-row {
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 16px;
-      align-items: start;
-    }
+    /* CARD */
+    .card { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+    .card-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border); }
+    .card-title { font-size:14px; font-weight:700; color:#fff; }
+    .card-subtitle { font-size:12px; color:var(--muted); margin-top:1px; }
+    .card-body { padding:20px; }
+    .chart-wrap { padding:16px 20px 20px; position:relative; height:240px; }
 
-    /* ── CARD ────────────────────────────────────────────────── */
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-    }
-    .card-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: #fff;
-    }
-    .card-subtitle {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 1px;
-    }
-    .card-body { padding: 20px; }
+    /* AI BRIEFING */
+    .briefing-body { padding:0; }
+    .model-item { display:flex; align-items:center; gap:12px; padding:14px 20px; border-bottom:1px solid var(--border); transition:background .15s; }
+    .model-item:last-child { border-bottom:none; }
+    .model-item:hover { background:rgba(255,255,255,.03); }
+    .model-indicator { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+    .model-indicator.green { background:var(--green); box-shadow:0 0 6px var(--green); }
+    .model-indicator.amber { background:var(--amber); box-shadow:0 0 6px var(--amber); }
+    .model-info { flex:1; min-width:0; }
+    .model-name { font-size:12px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .model-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+    .model-score { font-size:13px; font-weight:700; color:var(--gold); flex-shrink:0; }
 
-    /* ── CHART ───────────────────────────────────────────────── */
-    .chart-wrap {
-      padding: 16px 20px 20px;
-      position: relative;
-      height: 240px;
-    }
+    /* TABLE */
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; }
+    thead th { padding:10px 16px; text-align:left; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; color:var(--muted); border-bottom:1px solid var(--border); white-space:nowrap; }
+    tbody tr { border-bottom:1px solid var(--border); transition:background .12s; }
+    tbody tr:last-child { border-bottom:none; }
+    tbody tr:hover { background:rgba(255,255,255,.03); }
+    tbody tr.hidden { display:none; }
+    tbody td { padding:12px 16px; font-size:13px; color:var(--text); vertical-align:middle; }
+    .loan-id { font-family:'Courier New',monospace; font-size:12px; color:var(--gold); font-weight:600; }
+    .borrower-name { font-weight:600; color:#fff; }
+    .amount { font-weight:700; font-variant-numeric:tabular-nums; }
+    .stage-chip { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; white-space:nowrap; }
+    .stage-chip.app   { background:rgba(56,189,248,.12); color:var(--sky); }
+    .stage-chip.proc  { background:rgba(200,169,81,.12); color:var(--gold); }
+    .stage-chip.under { background:rgba(245,158,11,.12); color:var(--amber); }
+    .stage-chip.close { background:rgba(34,197,94,.12); color:var(--green); }
+    .ai-score-bar { display:flex; align-items:center; gap:8px; }
+    .score-track { width:60px; height:4px; background:rgba(255,255,255,.08); border-radius:2px; overflow:hidden; }
+    .score-fill { height:100%; border-radius:2px; }
+    .score-num { font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; min-width:28px; }
+    .status-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:.3px; }
+    .status-badge.cleared { background:rgba(34,197,94,.15); color:var(--green); }
+    .status-badge.review  { background:rgba(245,158,11,.15); color:var(--amber); }
+    .status-badge.pending { background:rgba(148,163,184,.12); color:var(--muted); }
+    .status-badge.flagged { background:rgba(239,68,68,.15); color:var(--red); }
 
-    /* ── AI BRIEFING PANEL ───────────────────────────────────── */
-    .briefing-body { padding: 0; }
-    .model-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-      transition: background 0.15s;
-    }
-    .model-item:last-child { border-bottom: none; }
-    .model-item:hover { background: rgba(255,255,255,0.03); }
-    .model-indicator {
-      width: 9px; height: 9px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .model-indicator.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
-    .model-indicator.amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
-    .model-info { flex: 1; min-width: 0; }
-    .model-name {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .model-meta {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-    .model-score {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--gold);
-      flex-shrink: 0;
-    }
+    /* PIPELINE VIEW */
+    .pipeline-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+    .pipeline-col { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+    .pipeline-col-header { padding:14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .pipeline-col-title { font-size:13px; font-weight:700; }
+    .pipeline-col-count { font-size:11px; font-weight:700; background:rgba(255,255,255,.08); color:var(--muted); border-radius:10px; padding:2px 8px; }
+    .pipeline-loan-card { padding:12px 14px; border-bottom:1px solid var(--border); transition:background .12s; cursor:default; }
+    .pipeline-loan-card:last-child { border-bottom:none; }
+    .pipeline-loan-card:hover { background:rgba(255,255,255,.03); }
+    .plc-id { font-family:'Courier New',monospace; font-size:11px; color:var(--gold); }
+    .plc-name { font-size:13px; font-weight:600; color:#fff; margin-top:2px; }
+    .plc-amount { font-size:12px; color:var(--muted); margin-top:1px; }
+    .plc-footer { display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
+    .plc-days { font-size:11px; color:var(--muted); }
 
-    /* ── LOAN TABLE ──────────────────────────────────────────── */
-    .table-wrap { overflow-x: auto; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    thead th {
-      padding: 10px 16px;
-      text-align: left;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      color: var(--muted);
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
-    tbody tr {
-      border-bottom: 1px solid var(--border);
-      transition: background 0.12s;
-    }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: rgba(255,255,255,0.03); }
-    tbody td {
-      padding: 12px 16px;
-      font-size: 13px;
-      color: var(--text);
-      vertical-align: middle;
-    }
-    .loan-id {
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-      color: var(--gold);
-      font-weight: 600;
-    }
-    .borrower-name { font-weight: 600; color: #fff; }
-    .amount { font-weight: 700; font-variant-numeric: tabular-nums; }
+    /* AI MODELS VIEW */
+    .models-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+    .model-card { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:20px; }
+    .model-card-header { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+    .model-card-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+    .model-card-title { font-size:14px; font-weight:700; color:#fff; }
+    .model-card-status { font-size:11px; font-weight:600; margin-top:1px; }
+    .accuracy-bar-wrap { margin-bottom:12px; }
+    .accuracy-label { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:5px; }
+    .accuracy-label span:last-child { font-weight:700; color:#fff; }
+    .accuracy-track { height:6px; background:rgba(255,255,255,.08); border-radius:3px; overflow:hidden; }
+    .accuracy-fill { height:100%; border-radius:3px; transition:width .6s ease; }
+    .model-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px; }
+    .model-stat { background:rgba(0,0,0,.2); border-radius:8px; padding:10px 12px; }
+    .model-stat-val { font-size:18px; font-weight:800; letter-spacing:-.5px; }
+    .model-stat-lbl { font-size:11px; color:var(--muted); margin-top:2px; }
 
-    .stage-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 3px 9px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .stage-chip.app    { background: rgba(56,189,248,0.12); color: var(--sky); }
-    .stage-chip.proc   { background: rgba(200,169,81,0.12); color: var(--gold); }
-    .stage-chip.under  { background: rgba(245,158,11,0.12); color: var(--amber); }
-    .stage-chip.close  { background: rgba(34,197,94,0.12); color: var(--green); }
+    /* COMPLIANCE VIEW */
+    .compliance-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .compliance-rule { display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--border); }
+    .compliance-rule:last-child { border-bottom:none; }
+    .rule-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+    .rule-name { font-size:13px; font-weight:600; color:#fff; }
+    .rule-sub { font-size:11px; color:var(--muted); margin-top:1px; }
+    .rule-badge { margin-left:auto; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; flex-shrink:0; }
+    .rule-badge.pass { background:rgba(34,197,94,.15); color:var(--green); }
+    .rule-badge.warn { background:rgba(245,158,11,.15); color:var(--amber); }
+    .rule-badge.fail { background:rgba(239,68,68,.15); color:var(--red); }
+    .compliance-score-ring { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px 20px; }
+    .score-ring-num { font-size:56px; font-weight:900; color:var(--green); letter-spacing:-2px; line-height:1; }
+    .score-ring-label { font-size:13px; color:var(--muted); margin-top:6px; }
+    .score-ring-sub { font-size:12px; color:var(--green); margin-top:4px; font-weight:600; }
 
-    .ai-score-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .score-track {
-      width: 60px;
-      height: 4px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .score-fill {
-      height: 100%;
-      border-radius: 2px;
-    }
-    .score-num {
-      font-size: 12px;
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-      min-width: 28px;
-    }
+    /* DOCS VIEW */
+    .doc-queue-item { display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--border); transition:background .12s; }
+    .doc-queue-item:last-child { border-bottom:none; }
+    .doc-queue-item:hover { background:rgba(255,255,255,.03); }
+    .doc-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+    .doc-info { flex:1; min-width:0; }
+    .doc-name { font-size:13px; font-weight:600; color:#fff; }
+    .doc-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+    .doc-status { font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; flex-shrink:0; }
+    .doc-status.extracted { background:rgba(34,197,94,.15); color:var(--green); }
+    .doc-status.processing { background:rgba(56,189,248,.15); color:var(--sky); }
+    .doc-status.queued { background:rgba(148,163,184,.12); color:var(--muted); }
 
-    .status-badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-    }
-    .status-badge.cleared  { background: rgba(34,197,94,0.15);  color: var(--green); }
-    .status-badge.review   { background: rgba(245,158,11,0.15); color: var(--amber); }
-    .status-badge.pending  { background: rgba(148,163,184,0.12); color: var(--muted); }
-    .status-badge.flagged  { background: rgba(239,68,68,0.15);  color: var(--red); }
-
-    /* ── SCROLLBAR ───────────────────────────────────────────── */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 10px; }
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width:5px; height:5px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:rgba(255,255,255,.12); border-radius:10px; }
   </style>
 </head>
 <body>
 
-<!-- ══ TOP NAV ══════════════════════════════════════════════════ -->
 <nav class="topnav">
   <div class="logo">
     <div class="logo-icon">
@@ -523,381 +216,270 @@
     </div>
     <span class="logo-text">Mortgage<span>Core</span> AI</span>
   </div>
-
-  <nav class="nav-links">
-    <div class="nav-link active">Dashboard</div>
-    <div class="nav-link">Pipeline</div>
-    <div class="nav-link">AI Models</div>
-    <div class="nav-link">Compliance</div>
-    <div class="nav-link">Docs</div>
-  </nav>
-
+  <div class="nav-links">
+    <div class="nav-link active" data-view="dashboard">Dashboard</div>
+    <div class="nav-link" data-view="pipeline">Pipeline</div>
+    <div class="nav-link" data-view="ai-models">AI Models</div>
+    <div class="nav-link" data-view="compliance">Compliance</div>
+    <div class="nav-link" data-view="docs">Docs</div>
+  </div>
   <div class="nav-right">
-    <div class="ai-badge">
-      <div class="pulse-dot"></div>
-      AI Processing Active
-    </div>
+    <div class="ai-badge"><div class="pulse-dot"></div>AI Processing Active</div>
     <div class="avatar">SJ</div>
   </div>
 </nav>
 
-<!-- ══ LAYOUT ════════════════════════════════════════════════════ -->
 <div class="layout">
-
-  <!-- ── SIDEBAR ─────────────────────────────────────────────── -->
   <aside class="sidebar">
     <div class="sidebar-section">
       <div class="sidebar-label">Pipeline Stages</div>
-
-      <div class="sidebar-item active">
-        <div class="sidebar-item-left">
-          <div class="stage-dot" style="background:#38bdf8"></div>
-          <span class="sidebar-item-name">Application</span>
-        </div>
+      <div class="sidebar-item active" data-stage="all">
+        <div class="sidebar-item-left"><div class="stage-dot" style="background:#94a3b8"></div><span class="sidebar-item-name">All Loans</span></div>
+        <span class="stage-count">247</span>
+      </div>
+      <div class="sidebar-item" data-stage="app">
+        <div class="sidebar-item-left"><div class="stage-dot" style="background:#38bdf8"></div><span class="sidebar-item-name">Application</span></div>
         <span class="stage-count">84</span>
       </div>
-
-      <div class="sidebar-item">
-        <div class="sidebar-item-left">
-          <div class="stage-dot" style="background:#C8A951"></div>
-          <span class="sidebar-item-name">Processing</span>
-        </div>
+      <div class="sidebar-item" data-stage="proc">
+        <div class="sidebar-item-left"><div class="stage-dot" style="background:#C8A951"></div><span class="sidebar-item-name">Processing</span></div>
         <span class="stage-count">61</span>
       </div>
-
-      <div class="sidebar-item">
-        <div class="sidebar-item-left">
-          <div class="stage-dot" style="background:#f59e0b"></div>
-          <span class="sidebar-item-name">Underwriting</span>
-        </div>
+      <div class="sidebar-item" data-stage="under">
+        <div class="sidebar-item-left"><div class="stage-dot" style="background:#f59e0b"></div><span class="sidebar-item-name">Underwriting</span></div>
         <span class="stage-count">57</span>
       </div>
-
-      <div class="sidebar-item">
-        <div class="sidebar-item-left">
-          <div class="stage-dot" style="background:#22c55e"></div>
-          <span class="sidebar-item-name">Closing</span>
-        </div>
+      <div class="sidebar-item" data-stage="close">
+        <div class="sidebar-item-left"><div class="stage-dot" style="background:#22c55e"></div><span class="sidebar-item-name">Closing</span></div>
         <span class="stage-count">45</span>
       </div>
     </div>
-
     <div class="sidebar-divider"></div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Quick Access</div>
-    </div>
-
-    <div class="sidebar-nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-        <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
-      </svg>
+    <div class="sidebar-section"><div class="sidebar-label">Quick Access</div></div>
+    <div class="sidebar-nav-item" data-view="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
       Overview
     </div>
-
-    <div class="sidebar-nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-      </svg>
+    <div class="sidebar-nav-item" data-view="ai-models">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       AI Insights
     </div>
-
-    <div class="sidebar-nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-        <polyline points="10 9 9 9 8 9"/>
-      </svg>
+    <div class="sidebar-nav-item" data-view="docs">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Documents
     </div>
-
-    <div class="sidebar-nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
+    <div class="sidebar-nav-item" data-view="compliance">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       Compliance
-    </div>
-
-    <div class="sidebar-nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
-      </svg>
-      Reports
-    </div>
-
-    <div class="sidebar-nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-      </svg>
-      Settings
     </div>
   </aside>
 
-  <!-- ── MAIN ─────────────────────────────────────────────────── -->
   <main class="main">
 
-    <!-- Page header -->
-    <div class="page-header">
-      <div>
-        <div class="page-title">Loan Pipeline Dashboard</div>
-        <div class="page-subtitle">March 17, 2026 &nbsp;·&nbsp; 247 active loans across all stages</div>
-      </div>
-      <div class="header-right">
-        <button class="btn btn-outline">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-          </svg>
-          Refresh
-        </button>
-        <button class="btn btn-gold">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          New Application
-        </button>
-      </div>
-    </div>
-
-    <!-- KPI row -->
-    <div class="kpi-row">
-      <div class="kpi-card gold">
-        <div class="kpi-label">Active Loans</div>
-        <div class="kpi-value">247</div>
-        <div class="kpi-delta up">&#x2191; +18 this week</div>
-      </div>
-      <div class="kpi-card green">
-        <div class="kpi-label">AI Cleared</div>
-        <div class="kpi-value" style="color:var(--green)">68%</div>
-        <div class="kpi-delta up">&#x2191; +4.2% vs last month</div>
-      </div>
-      <div class="kpi-card sky">
-        <div class="kpi-label">Avg Days to Close</div>
-        <div class="kpi-value" style="color:var(--sky)">12.3</div>
-        <div class="kpi-delta up">&#x2193; 3.1 days faster</div>
-      </div>
-      <div class="kpi-card amber">
-        <div class="kpi-label">Cost Per Loan</div>
-        <div class="kpi-value" style="color:var(--amber)">$3,420</div>
-        <div class="kpi-delta up">&#x2193; $580 vs prior qtr</div>
-      </div>
-    </div>
-
-    <!-- Middle row -->
-    <div class="middle-row">
-
-      <!-- Chart card -->
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div class="card-title">Monthly Origination Volume</div>
-            <div class="card-subtitle">Current year vs prior year ($M)</div>
-          </div>
-          <div style="display:flex;gap:16px;align-items:center;font-size:12px;">
-            <span style="display:flex;align-items:center;gap:5px;color:var(--muted)">
-              <span style="width:20px;height:2px;background:var(--gold);display:inline-block;border-radius:2px"></span>2026
-            </span>
-            <span style="display:flex;align-items:center;gap:5px;color:var(--muted)">
-              <span style="width:20px;height:2px;background:#38bdf8;display:inline-block;border-radius:2px;opacity:0.6"></span>2025
-            </span>
-          </div>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="origChart"></canvas>
-        </div>
-      </div>
-
-      <!-- AI Briefing panel -->
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div class="card-title">AI Intelligence Briefing</div>
-            <div class="card-subtitle">Live model performance</div>
-          </div>
-        </div>
-        <div class="briefing-body">
-
-          <div class="model-item">
-            <div class="model-indicator green"></div>
-            <div class="model-info">
-              <div class="model-name">Credit Risk Scorer</div>
-              <div class="model-meta">183 scored today</div>
-            </div>
-            <div class="model-score">99.1%</div>
-          </div>
-
-          <div class="model-item">
-            <div class="model-indicator green"></div>
-            <div class="model-info">
-              <div class="model-name">Doc Classifier</div>
-              <div class="model-meta">1,204 docs processed</div>
-            </div>
-            <div class="model-score">98.7%</div>
-          </div>
-
-          <div class="model-item">
-            <div class="model-indicator green"></div>
-            <div class="model-info">
-              <div class="model-name">Income Verifier</div>
-              <div class="model-meta">Auto-verified 91%</div>
-            </div>
-            <div class="model-score">97.4%</div>
-          </div>
-
-          <div class="model-item">
-            <div class="model-indicator amber"></div>
-            <div class="model-info">
-              <div class="model-name">Appraisal Analyzer</div>
-              <div class="model-meta">Retraining scheduled</div>
-            </div>
-            <div class="model-score" style="color:var(--amber)">93.2%</div>
-          </div>
-
-          <div class="model-item">
-            <div class="model-indicator green"></div>
-            <div class="model-info">
-              <div class="model-name">Compliance Guard</div>
-              <div class="model-meta">0 violations flagged</div>
-            </div>
-            <div class="model-score">100%</div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- Loan table -->
-    <div class="card">
-      <div class="card-header">
+    <!-- ══ DASHBOARD VIEW ══ -->
+    <div class="view active" id="view-dashboard">
+      <div class="page-header">
         <div>
-          <div class="card-title">Recent Loans</div>
-          <div class="card-subtitle">Last updated 2 minutes ago</div>
+          <div class="page-title">Loan Pipeline Dashboard</div>
+          <div class="page-subtitle" id="dash-subtitle">Showing all 247 active loans</div>
         </div>
-        <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;">View All</button>
+        <div class="header-right">
+          <button type="button" class="btn btn-outline">↻ Refresh</button>
+          <button type="button" class="btn btn-gold">+ New Application</button>
+        </div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Loan ID</th>
-              <th>Borrower</th>
-              <th>Amount</th>
-              <th>Stage</th>
-              <th>AI Score</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><span class="loan-id">MC-2026-0481</span></td>
-              <td><span class="borrower-name">Jennifer Caldwell</span></td>
-              <td><span class="amount">$485,000</span></td>
-              <td><span class="stage-chip close">&#x25CF; Closing</span></td>
-              <td>
-                <div class="ai-score-bar">
-                  <div class="score-track"><div class="score-fill" style="width:94%;background:var(--green)"></div></div>
-                  <span class="score-num" style="color:var(--green)">94</span>
-                </div>
-              </td>
-              <td><span class="status-badge cleared">AI Cleared</span></td>
-            </tr>
-            <tr>
-              <td><span class="loan-id">MC-2026-0479</span></td>
-              <td><span class="borrower-name">Marcus Thompson</span></td>
-              <td><span class="amount">$710,000</span></td>
-              <td><span class="stage-chip under">&#x25CF; Underwriting</span></td>
-              <td>
-                <div class="ai-score-bar">
-                  <div class="score-track"><div class="score-fill" style="width:81%;background:var(--gold)"></div></div>
-                  <span class="score-num" style="color:var(--gold)">81</span>
-                </div>
-              </td>
-              <td><span class="status-badge review">In Review</span></td>
-            </tr>
-            <tr>
-              <td><span class="loan-id">MC-2026-0477</span></td>
-              <td><span class="borrower-name">Priya Nair</span></td>
-              <td><span class="amount">$322,500</span></td>
-              <td><span class="stage-chip proc">&#x25CF; Processing</span></td>
-              <td>
-                <div class="ai-score-bar">
-                  <div class="score-track"><div class="score-fill" style="width:89%;background:var(--green)"></div></div>
-                  <span class="score-num" style="color:var(--green)">89</span>
-                </div>
-              </td>
-              <td><span class="status-badge cleared">AI Cleared</span></td>
-            </tr>
-            <tr>
-              <td><span class="loan-id">MC-2026-0474</span></td>
-              <td><span class="borrower-name">Robert Eason</span></td>
-              <td><span class="amount">$1,200,000</span></td>
-              <td><span class="stage-chip under">&#x25CF; Underwriting</span></td>
-              <td>
-                <div class="ai-score-bar">
-                  <div class="score-track"><div class="score-fill" style="width:62%;background:var(--amber)"></div></div>
-                  <span class="score-num" style="color:var(--amber)">62</span>
-                </div>
-              </td>
-              <td><span class="status-badge flagged">Flagged</span></td>
-            </tr>
-            <tr>
-              <td><span class="loan-id">MC-2026-0472</span></td>
-              <td><span class="borrower-name">Sandra Ortiz</span></td>
-              <td><span class="amount">$275,000</span></td>
-              <td><span class="stage-chip app">&#x25CF; Application</span></td>
-              <td>
-                <div class="ai-score-bar">
-                  <div class="score-track"><div class="score-fill" style="width:76%;background:var(--gold)"></div></div>
-                  <span class="score-num" style="color:var(--gold)">76</span>
-                </div>
-              </td>
-              <td><span class="status-badge pending">Pending</span></td>
-            </tr>
-            <tr>
-              <td><span class="loan-id">MC-2026-0469</span></td>
-              <td><span class="borrower-name">David Kim</span></td>
-              <td><span class="amount">$540,000</span></td>
-              <td><span class="stage-chip close">&#x25CF; Closing</span></td>
-              <td>
-                <div class="ai-score-bar">
-                  <div class="score-track"><div class="score-fill" style="width:96%;background:var(--green)"></div></div>
-                  <span class="score-num" style="color:var(--green)">96</span>
-                </div>
-              </td>
-              <td><span class="status-badge cleared">AI Cleared</span></td>
-            </tr>
-            <tr>
-              <td><span class="loan-id">MC-2026-0467</span></td>
-              <td><span class="borrower-name">Angela Voss</span></td>
-              <td><span class="amount">$398,750</span></td>
-              <td><span class="stage-chip proc">&#x25CF; Processing</span></td>
-              <td>
-                <div class="ai-score-bar">
-                  <div class="score-track"><div class="score-fill" style="width:85%;background:var(--green)"></div></div>
-                  <span class="score-num" style="color:var(--green)">85</span>
-                </div>
-              </td>
-              <td><span class="status-badge cleared">AI Cleared</span></td>
-            </tr>
-            <tr>
-              <td><span class="loan-id">MC-2026-0463</span></td>
-              <td><span class="borrower-name">Tyler Bannister</span></td>
-              <td><span class="amount">$615,000</span></td>
-              <td><span class="stage-chip app">&#x25CF; Application</span></td>
-              <td>
-                <div class="ai-score-bar">
-                  <div class="score-track"><div class="score-fill" style="width:58%;background:var(--amber)"></div></div>
-                  <span class="score-num" style="color:var(--amber)">58</span>
-                </div>
-              </td>
-              <td><span class="status-badge review">In Review</span></td>
-            </tr>
-          </tbody>
-        </table>
+
+      <div class="kpi-row">
+        <div class="kpi-card gold"><div class="kpi-label" id="kpi0-label">Active Loans</div><div class="kpi-value" id="kpi0-value" style="color:var(--gold)">247</div><div class="kpi-delta up" id="kpi0-delta">↑ +18 this week</div></div>
+        <div class="kpi-card green"><div class="kpi-label" id="kpi1-label">AI Cleared</div><div class="kpi-value" id="kpi1-value" style="color:var(--green)">68%</div><div class="kpi-delta up" id="kpi1-delta">↑ +4.2% vs last month</div></div>
+        <div class="kpi-card sky"><div class="kpi-label" id="kpi2-label">Avg Days to Close</div><div class="kpi-value" id="kpi2-value" style="color:var(--sky)">12.3</div><div class="kpi-delta up" id="kpi2-delta">↓ 3.1 days faster</div></div>
+        <div class="kpi-card amber"><div class="kpi-label" id="kpi3-label">Cost Per Loan</div><div class="kpi-value" id="kpi3-value" style="color:var(--amber)">$3,420</div><div class="kpi-delta up" id="kpi3-delta">↓ $580 vs prior qtr</div></div>
+      </div>
+
+      <div class="middle-row">
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Monthly Origination Volume</div><div class="card-subtitle">Current year vs prior year ($M)</div></div>
+            <div style="display:flex;gap:16px;align-items:center;font-size:12px;">
+              <span style="display:flex;align-items:center;gap:5px;color:var(--muted)"><span style="width:20px;height:2px;background:var(--gold);display:inline-block;border-radius:2px"></span>2026</span>
+              <span style="display:flex;align-items:center;gap:5px;color:var(--muted)"><span style="width:20px;height:2px;background:#38bdf8;display:inline-block;border-radius:2px;opacity:.6"></span>2025</span>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="origChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">AI Intelligence Briefing</div><div class="card-subtitle">Live model performance</div></div></div>
+          <div class="briefing-body">
+            <div class="model-item"><div class="model-indicator green"></div><div class="model-info"><div class="model-name">Credit Risk Scorer</div><div class="model-meta">183 scored today</div></div><div class="model-score">99.1%</div></div>
+            <div class="model-item"><div class="model-indicator green"></div><div class="model-info"><div class="model-name">Doc Classifier</div><div class="model-meta">1,204 docs processed</div></div><div class="model-score">98.7%</div></div>
+            <div class="model-item"><div class="model-indicator green"></div><div class="model-info"><div class="model-name">Income Verifier</div><div class="model-meta">Auto-verified 91%</div></div><div class="model-score">97.4%</div></div>
+            <div class="model-item"><div class="model-indicator amber"></div><div class="model-info"><div class="model-name">Appraisal Analyzer</div><div class="model-meta">Retraining scheduled</div></div><div class="model-score" style="color:var(--amber)">93.2%</div></div>
+            <div class="model-item"><div class="model-indicator green"></div><div class="model-info"><div class="model-name">Compliance Guard</div><div class="model-meta">0 violations flagged</div></div><div class="model-score">100%</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title" id="table-title">Recent Loans</div><div class="card-subtitle">Last updated 2 minutes ago</div></div>
+          <button type="button" class="btn btn-outline" style="font-size:12px;padding:6px 12px;">View All</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Loan ID</th><th>Borrower</th><th>Amount</th><th>Stage</th><th>AI Score</th><th>Status</th></tr></thead>
+            <tbody id="loan-tbody">
+              <tr data-stage="close"><td><span class="loan-id">MC-2026-0481</span></td><td><span class="borrower-name">Jennifer Caldwell</span></td><td><span class="amount">$485,000</span></td><td><span class="stage-chip close">● Closing</span></td><td><div class="ai-score-bar"><div class="score-track"><div class="score-fill" style="width:94%;background:var(--green)"></div></div><span class="score-num" style="color:var(--green)">94</span></div></td><td><span class="status-badge cleared">AI Cleared</span></td></tr>
+              <tr data-stage="under"><td><span class="loan-id">MC-2026-0479</span></td><td><span class="borrower-name">Marcus Thompson</span></td><td><span class="amount">$710,000</span></td><td><span class="stage-chip under">● Underwriting</span></td><td><div class="ai-score-bar"><div class="score-track"><div class="score-fill" style="width:81%;background:var(--gold)"></div></div><span class="score-num" style="color:var(--gold)">81</span></div></td><td><span class="status-badge review">In Review</span></td></tr>
+              <tr data-stage="proc"><td><span class="loan-id">MC-2026-0477</span></td><td><span class="borrower-name">Priya Nair</span></td><td><span class="amount">$322,500</span></td><td><span class="stage-chip proc">● Processing</span></td><td><div class="ai-score-bar"><div class="score-track"><div class="score-fill" style="width:89%;background:var(--green)"></div></div><span class="score-num" style="color:var(--green)">89</span></div></td><td><span class="status-badge cleared">AI Cleared</span></td></tr>
+              <tr data-stage="under"><td><span class="loan-id">MC-2026-0474</span></td><td><span class="borrower-name">Robert Eason</span></td><td><span class="amount">$1,200,000</span></td><td><span class="stage-chip under">● Underwriting</span></td><td><div class="ai-score-bar"><div class="score-track"><div class="score-fill" style="width:62%;background:var(--amber)"></div></div><span class="score-num" style="color:var(--amber)">62</span></div></td><td><span class="status-badge flagged">Flagged</span></td></tr>
+              <tr data-stage="app"><td><span class="loan-id">MC-2026-0472</span></td><td><span class="borrower-name">Sandra Ortiz</span></td><td><span class="amount">$275,000</span></td><td><span class="stage-chip app">● Application</span></td><td><div class="ai-score-bar"><div class="score-track"><div class="score-fill" style="width:76%;background:var(--gold)"></div></div><span class="score-num" style="color:var(--gold)">76</span></div></td><td><span class="status-badge pending">Pending</span></td></tr>
+              <tr data-stage="close"><td><span class="loan-id">MC-2026-0469</span></td><td><span class="borrower-name">David Kim</span></td><td><span class="amount">$540,000</span></td><td><span class="stage-chip close">● Closing</span></td><td><div class="ai-score-bar"><div class="score-track"><div class="score-fill" style="width:96%;background:var(--green)"></div></div><span class="score-num" style="color:var(--green)">96</span></div></td><td><span class="status-badge cleared">AI Cleared</span></td></tr>
+              <tr data-stage="proc"><td><span class="loan-id">MC-2026-0467</span></td><td><span class="borrower-name">Angela Voss</span></td><td><span class="amount">$398,750</span></td><td><span class="stage-chip proc">● Processing</span></td><td><div class="ai-score-bar"><div class="score-track"><div class="score-fill" style="width:85%;background:var(--green)"></div></div><span class="score-num" style="color:var(--green)">85</span></div></td><td><span class="status-badge cleared">AI Cleared</span></td></tr>
+              <tr data-stage="app"><td><span class="loan-id">MC-2026-0463</span></td><td><span class="borrower-name">Tyler Bannister</span></td><td><span class="amount">$615,000</span></td><td><span class="stage-chip app">● Application</span></td><td><div class="ai-score-bar"><div class="score-track"><div class="score-fill" style="width:58%;background:var(--amber)"></div></div><span class="score-num" style="color:var(--amber)">58</span></div></td><td><span class="status-badge review">In Review</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PIPELINE VIEW ══ -->
+    <div class="view" id="view-pipeline">
+      <div class="page-header">
+        <div><div class="page-title">Loan Pipeline</div><div class="page-subtitle">247 active loans across 4 stages</div></div>
+        <div class="header-right"><button type="button" class="btn btn-gold">+ New Application</button></div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi-card sky"><div class="kpi-label">Application</div><div class="kpi-value" style="color:var(--sky)">84</div><div class="kpi-delta" style="color:var(--muted)">Avg 2.1 days in stage</div></div>
+        <div class="kpi-card gold"><div class="kpi-label">Processing</div><div class="kpi-value" style="color:var(--gold)">61</div><div class="kpi-delta" style="color:var(--muted)">Avg 4.3 days in stage</div></div>
+        <div class="kpi-card amber"><div class="kpi-label">Underwriting</div><div class="kpi-value" style="color:var(--amber)">57</div><div class="kpi-delta" style="color:var(--muted)">Avg 3.8 days in stage</div></div>
+        <div class="kpi-card green"><div class="kpi-label">Closing</div><div class="kpi-value" style="color:var(--green)">45</div><div class="kpi-delta" style="color:var(--muted)">Avg 1.9 days in stage</div></div>
+      </div>
+      <div class="pipeline-grid">
+        <div class="pipeline-col">
+          <div class="pipeline-col-header"><span class="pipeline-col-title" style="color:var(--sky)">● Application</span><span class="pipeline-col-count">84</span></div>
+          <div class="pipeline-loan-card"><div class="plc-id">MC-2026-0472</div><div class="plc-name">Sandra Ortiz</div><div class="plc-amount">$275,000 · Conventional</div><div class="plc-footer"><span class="plc-days">Day 2</span><span class="status-badge pending">Pending</span></div></div>
+          <div class="pipeline-loan-card"><div class="plc-id">MC-2026-0463</div><div class="plc-name">Tyler Bannister</div><div class="plc-amount">$615,000 · Jumbo</div><div class="plc-footer"><span class="plc-days">Day 1</span><span class="status-badge review">In Review</span></div></div>
+          <div class="pipeline-loan-card"><div class="plc-id">MC-2026-0461</div><div class="plc-name">Michelle Park</div><div class="plc-amount">$340,000 · FHA</div><div class="plc-footer"><span class="plc-days">Day 3</span><span class="status-badge pending">Pending</span></div></div>
+          <div class="pipeline-loan-card" style="color:var(--muted);text-align:center;padding:12px;font-size:12px;">+ 81 more loans</div>
+        </div>
+        <div class="pipeline-col">
+          <div class="pipeline-col-header"><span class="pipeline-col-title" style="color:var(--gold)">● Processing</span><span class="pipeline-col-count">61</span></div>
+          <div class="pipeline-loan-card"><div class="plc-id">MC-2026-0477</div><div class="plc-name">Priya Nair</div><div class="plc-amount">$322,500 · Conventional</div><div class="plc-footer"><span class="plc-days">Day 5</span><span class="status-badge cleared">AI Cleared</span></div></div>
+          <div class="pipeline-loan-card"><div class="plc-id">MC-2026-0467</div><div class="plc-name">Angela Voss</div><div class="plc-amount">$398,750 · Conventional</div><div class="plc-footer"><span class="plc-days">Day 4</span><span class="status-badge cleared">AI Cleared</span></div></div>
+          <div class="pipeline-loan-card"><div class="plc-id">MC-2026-0455</div><div class="plc-name">James Whitfield</div><div class="plc-amount">$510,000 · VA</div><div class="plc-footer"><span class="plc-days">Day 6</span><span class="status-badge review">In Review</span></div></div>
+          <div class="pipeline-loan-card" style="color:var(--muted);text-align:center;padding:12px;font-size:12px;">+ 58 more loans</div>
+        </div>
+        <div class="pipeline-col">
+          <div class="pipeline-col-header"><span class="pipeline-col-title" style="color:var(--amber)">● Underwriting</span><span class="pipeline-col-count">57</span></div>
+          <div class="pipeline-loan-card"><div class="plc-id">MC-2026-0479</div><div class="plc-name">Marcus Thompson</div><div class="plc-amount">$710,000 · Jumbo</div><div class="plc-footer"><span class="plc-days">Day 8</span><span class="status-badge review">In Review</span></div></div>
+          <div class="pipeline-loan-card"><div class="plc-id">MC-2026-0474</div><div class="plc-name">Robert Eason</div><div class="plc-amount">$1,200,000 · Jumbo</div><div class="plc-footer"><span class="plc-days">Day 9</span><span class="status-badge flagged">Flagged</span></div></div>
+          <div class="pipeline-loan-card"><div class="plc-id">MC-2026-0448</div><div class="plc-name">Karen Delgado</div><div class="plc-amount">$425,000 · Conventional</div><div class="plc-footer"><span class="plc-days">Day 7</span><span class="status-badge cleared">AI Cleared</span></div></div>
+          <div class="pipeline-loan-card" style="color:var(--muted);text-align:center;padding:12px;font-size:12px;">+ 54 more loans</div>
+        </div>
+        <div class="pipeline-col">
+          <div class="pipeline-col-header"><span class="pipeline-col-title" style="color:var(--green)">● Closing</span><span class="pipeline-col-count">45</span></div>
+          <div class="pipeline-loan-card"><div class="plc-id">MC-2026-0481</div><div class="plc-name">Jennifer Caldwell</div><div class="plc-amount">$485,000 · Conventional</div><div class="plc-footer"><span class="plc-days">Day 11</span><span class="status-badge cleared">AI Cleared</span></div></div>
+          <div class="pipeline-loan-card"><div class="plc-id">MC-2026-0469</div><div class="plc-name">David Kim</div><div class="plc-amount">$540,000 · Conventional</div><div class="plc-footer"><span class="plc-days">Day 12</span><span class="status-badge cleared">AI Cleared</span></div></div>
+          <div class="pipeline-loan-card"><div class="plc-id">MC-2026-0441</div><div class="plc-name">Lisa Hartmann</div><div class="plc-amount">$387,500 · FHA</div><div class="plc-footer"><span class="plc-days">Day 13</span><span class="status-badge cleared">AI Cleared</span></div></div>
+          <div class="pipeline-loan-card" style="color:var(--muted);text-align:center;padding:12px;font-size:12px;">+ 42 more loans</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ AI MODELS VIEW ══ -->
+    <div class="view" id="view-ai-models">
+      <div class="page-header">
+        <div><div class="page-title">AI Model Performance</div><div class="page-subtitle">5 models active · All systems operational</div></div>
+        <div class="header-right"><button type="button" class="btn btn-outline">Export Report</button></div>
+      </div>
+      <div class="models-grid">
+        <div class="model-card">
+          <div class="model-card-header"><div class="model-card-icon" style="background:rgba(34,197,94,.15)">🎯</div><div><div class="model-card-title">Credit Risk Scorer</div><div class="model-card-status" style="color:var(--green)">● Operational</div></div></div>
+          <div class="accuracy-bar-wrap"><div class="accuracy-label"><span>Accuracy</span><span>99.1%</span></div><div class="accuracy-track"><div class="accuracy-fill" style="width:99.1%;background:var(--green)"></div></div></div>
+          <div class="model-stats"><div class="model-stat"><div class="model-stat-val" style="color:var(--green)">183</div><div class="model-stat-lbl">Scored today</div></div><div class="model-stat"><div class="model-stat-val" style="color:var(--gold)">2.1s</div><div class="model-stat-lbl">Avg response</div></div></div>
+        </div>
+        <div class="model-card">
+          <div class="model-card-header"><div class="model-card-icon" style="background:rgba(56,189,248,.15)">📄</div><div><div class="model-card-title">Document Classifier</div><div class="model-card-status" style="color:var(--green)">● Operational</div></div></div>
+          <div class="accuracy-bar-wrap"><div class="accuracy-label"><span>Accuracy</span><span>98.7%</span></div><div class="accuracy-track"><div class="accuracy-fill" style="width:98.7%;background:var(--sky)"></div></div></div>
+          <div class="model-stats"><div class="model-stat"><div class="model-stat-val" style="color:var(--sky)">1,204</div><div class="model-stat-lbl">Docs processed</div></div><div class="model-stat"><div class="model-stat-val" style="color:var(--gold)">0.8s</div><div class="model-stat-lbl">Avg response</div></div></div>
+        </div>
+        <div class="model-card">
+          <div class="model-card-header"><div class="model-card-icon" style="background:rgba(200,169,81,.15)">💰</div><div><div class="model-card-title">Income Verifier</div><div class="model-card-status" style="color:var(--green)">● Operational</div></div></div>
+          <div class="accuracy-bar-wrap"><div class="accuracy-label"><span>Accuracy</span><span>97.4%</span></div><div class="accuracy-track"><div class="accuracy-fill" style="width:97.4%;background:var(--gold)"></div></div></div>
+          <div class="model-stats"><div class="model-stat"><div class="model-stat-val" style="color:var(--gold)">91%</div><div class="model-stat-lbl">Auto-verified</div></div><div class="model-stat"><div class="model-stat-val" style="color:var(--green)">3.4s</div><div class="model-stat-lbl">Avg response</div></div></div>
+        </div>
+        <div class="model-card">
+          <div class="model-card-header"><div class="model-card-icon" style="background:rgba(245,158,11,.15)">🏠</div><div><div class="model-card-title">Appraisal Analyzer</div><div class="model-card-status" style="color:var(--amber)">● Retraining</div></div></div>
+          <div class="accuracy-bar-wrap"><div class="accuracy-label"><span>Accuracy</span><span>93.2%</span></div><div class="accuracy-track"><div class="accuracy-fill" style="width:93.2%;background:var(--amber)"></div></div></div>
+          <div class="model-stats"><div class="model-stat"><div class="model-stat-val" style="color:var(--amber)">47</div><div class="model-stat-lbl">Analyzed today</div></div><div class="model-stat"><div class="model-stat-val" style="color:var(--gold)">5.1s</div><div class="model-stat-lbl">Avg response</div></div></div>
+        </div>
+        <div class="model-card">
+          <div class="model-card-header"><div class="model-card-icon" style="background:rgba(34,197,94,.15)">🛡️</div><div><div class="model-card-title">Compliance Guard</div><div class="model-card-status" style="color:var(--green)">● Operational</div></div></div>
+          <div class="accuracy-bar-wrap"><div class="accuracy-label"><span>Accuracy</span><span>100%</span></div><div class="accuracy-track"><div class="accuracy-fill" style="width:100%;background:var(--green)"></div></div></div>
+          <div class="model-stats"><div class="model-stat"><div class="model-stat-val" style="color:var(--green)">0</div><div class="model-stat-lbl">Violations today</div></div><div class="model-stat"><div class="model-stat-val" style="color:var(--gold)">1.2s</div><div class="model-stat-lbl">Avg response</div></div></div>
+        </div>
+        <div class="model-card">
+          <div class="model-card-header"><div class="model-card-icon" style="background:rgba(239,68,68,.15)">🔍</div><div><div class="model-card-title">Fraud Detector</div><div class="model-card-status" style="color:var(--green)">● Operational</div></div></div>
+          <div class="accuracy-bar-wrap"><div class="accuracy-label"><span>Accuracy</span><span>99.6%</span></div><div class="accuracy-track"><div class="accuracy-fill" style="width:99.6%;background:#ef4444"></div></div></div>
+          <div class="model-stats"><div class="model-stat"><div class="model-stat-val" style="color:var(--red)">3</div><div class="model-stat-lbl">Flags raised</div></div><div class="model-stat"><div class="model-stat-val" style="color:var(--gold)">1.7s</div><div class="model-stat-lbl">Avg response</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ COMPLIANCE VIEW ══ -->
+    <div class="view" id="view-compliance">
+      <div class="page-header">
+        <div><div class="page-title">Compliance Monitor</div><div class="page-subtitle">Real-time regulatory enforcement across all active loans</div></div>
+        <div class="header-right"><button type="button" class="btn btn-outline">Download Report</button></div>
+      </div>
+      <div class="compliance-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Regulatory Checklist</div></div>
+          <div class="compliance-rule"><div class="rule-icon" style="background:rgba(34,197,94,.1)">📋</div><div><div class="rule-name">TRID — Loan Estimate</div><div class="rule-sub">3-day delivery requirement</div></div><span class="rule-badge pass">PASS</span></div>
+          <div class="compliance-rule"><div class="rule-icon" style="background:rgba(34,197,94,.1)">📋</div><div><div class="rule-name">TRID — Closing Disclosure</div><div class="rule-sub">3-day delivery requirement</div></div><span class="rule-badge pass">PASS</span></div>
+          <div class="compliance-rule"><div class="rule-icon" style="background:rgba(34,197,94,.1)">⚖️</div><div><div class="rule-name">ATR / QM Analysis</div><div class="rule-sub">Ability-to-repay verification</div></div><span class="rule-badge pass">PASS</span></div>
+          <div class="compliance-rule"><div class="rule-icon" style="background:rgba(34,197,94,.1)">📊</div><div><div class="rule-name">HMDA LAR Population</div><div class="rule-sub">Auto-populated all 247 loans</div></div><span class="rule-badge pass">PASS</span></div>
+          <div class="compliance-rule"><div class="rule-icon" style="background:rgba(245,158,11,.1)">🏦</div><div><div class="rule-name">HOEPA Testing</div><div class="rule-sub">2 loans require manual review</div></div><span class="rule-badge warn">REVIEW</span></div>
+          <div class="compliance-rule"><div class="rule-icon" style="background:rgba(34,197,94,.1)">🔎</div><div><div class="rule-name">OFAC / AML Screening</div><div class="rule-sub">All borrowers screened</div></div><span class="rule-badge pass">PASS</span></div>
+          <div class="compliance-rule"><div class="rule-icon" style="background:rgba(34,197,94,.1)">⚖️</div><div><div class="rule-name">Fair Lending — Reg B</div><div class="rule-sub">No disparate impact detected</div></div><span class="rule-badge pass">PASS</span></div>
+        </div>
+        <div class="card">
+          <div class="compliance-score-ring"><div class="score-ring-num">98</div><div class="score-ring-label">Compliance Score</div><div class="score-ring-sub">↑ +2 pts from last quarter</div></div>
+          <div style="padding:0 20px 20px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--green)">0</div><div style="font-size:11px;color:var(--muted);margin-top:3px">TRID Violations</div></div>
+              <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--green)">0</div><div style="font-size:11px;color:var(--muted);margin-top:3px">ATR Failures</div></div>
+              <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--amber)">2</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Open Reviews</div></div>
+              <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--green)">247</div><div style="font-size:11px;color:var(--muted);margin-top:3px">HMDA Populated</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ DOCS VIEW ══ -->
+    <div class="view" id="view-docs">
+      <div class="page-header">
+        <div><div class="page-title">Document Processing</div><div class="page-subtitle">1,204 documents processed today · AI accuracy 98.7%</div></div>
+        <div class="header-right"><button type="button" class="btn btn-gold">Upload Documents</button></div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi-card green"><div class="kpi-label">Extracted Today</div><div class="kpi-value" style="color:var(--green)">1,204</div><div class="kpi-delta up">↑ +142 vs yesterday</div></div>
+        <div class="kpi-card sky"><div class="kpi-label">Accuracy Rate</div><div class="kpi-value" style="color:var(--sky)">98.7%</div><div class="kpi-delta up">↑ above 93% SLA</div></div>
+        <div class="kpi-card gold"><div class="kpi-label">In Queue</div><div class="kpi-value" style="color:var(--gold)">38</div><div class="kpi-delta" style="color:var(--muted)">Avg wait: 12 sec</div></div>
+        <div class="kpi-card amber"><div class="kpi-label">Manual Review</div><div class="kpi-value" style="color:var(--amber)">7</div><div class="kpi-delta down">↑ 2 flagged today</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Document Queue</div><div class="card-subtitle">Most recent activity</div></div>
+        <div>
+          <div class="doc-queue-item"><div class="doc-icon" style="background:rgba(34,197,94,.12)">📄</div><div class="doc-info"><div class="doc-name">W2_2023_Jennifer_Caldwell.pdf</div><div class="doc-meta">MC-2026-0481 · W-2 · Employer: Acme Corp · Wages: $95,000</div></div><span class="doc-status extracted">Extracted</span></div>
+          <div class="doc-queue-item"><div class="doc-icon" style="background:rgba(34,197,94,.12)">📄</div><div class="doc-info"><div class="doc-name">Paystub_Nov2025_Marcus_Thompson.pdf</div><div class="doc-meta">MC-2026-0479 · Paystub · YTD: $142,000 · Employer: Global Tech Inc</div></div><span class="doc-status extracted">Extracted</span></div>
+          <div class="doc-queue-item"><div class="doc-icon" style="background:rgba(56,189,248,.12)">📊</div><div class="doc-info"><div class="doc-name">BankStatement_3mo_Priya_Nair.pdf</div><div class="doc-meta">MC-2026-0477 · Bank Statement · 3 months · Chase Bank</div></div><span class="doc-status processing">Processing</span></div>
+          <div class="doc-queue-item"><div class="doc-icon" style="background:rgba(34,197,94,.12)">🏠</div><div class="doc-info"><div class="doc-name">Appraisal_123MainSt_Austin_TX.pdf</div><div class="doc-meta">MC-2026-0474 · Appraisal · Value: $1,240,000 · Appraiser: CoreLogic</div></div><span class="doc-status extracted">Extracted</span></div>
+          <div class="doc-queue-item"><div class="doc-icon" style="background:rgba(34,197,94,.12)">📄</div><div class="doc-info"><div class="doc-name">TaxReturn_2022_Robert_Eason.pdf</div><div class="doc-meta">MC-2026-0474 · 1040 · AGI: $285,000 · Self-employed</div></div><span class="doc-status extracted">Extracted</span></div>
+          <div class="doc-queue-item"><div class="doc-icon" style="background:rgba(148,163,184,.12)">📄</div><div class="doc-info"><div class="doc-name">DriversLicense_Sandra_Ortiz.pdf</div><div class="doc-meta">MC-2026-0472 · Government ID · Awaiting classification</div></div><span class="doc-status queued">Queued</span></div>
+          <div class="doc-queue-item"><div class="doc-icon" style="background:rgba(148,163,184,.12)">📊</div><div class="doc-info"><div class="doc-name">VOE_David_Kim_Employer.pdf</div><div class="doc-meta">MC-2026-0469 · Verification of Employment · Awaiting processing</div></div><span class="doc-status queued">Queued</span></div>
+        </div>
       </div>
     </div>
 
@@ -905,105 +487,159 @@
 </div>
 
 <script>
-  (function () {
-    const ctx = document.getElementById('origChart').getContext('2d');
+(function () {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const current = [38.2, 41.5, 47.8, 52.1, 55.6, 49.3, 61.0, 65.4, 58.9, 70.2, 74.1, 80.5];
-    const prior   = [29.1, 32.4, 38.0, 41.7, 44.2, 40.8, 51.3, 54.6, 49.2, 58.7, 62.3, 68.0];
+  // ── Per-stage data ─────────────────────────────────────────────
+  const stageData = {
+    all: {
+      subtitle: 'Showing all 247 active loans',
+      tableTitle: 'Recent Loans',
+      chartSubtitle: 'Current year vs prior year ($M)',
+      current: [38.2,41.5,47.8,52.1,55.6,49.3,61.0,65.4,58.9,70.2,74.1,80.5],
+      prior:   [29.1,32.4,38.0,41.7,44.2,40.8,51.3,54.6,49.2,58.7,62.3,68.0],
+      kpis: [
+        { label:'Active Loans',    value:'247',    delta:'↑ +18 this week',       color:'var(--gold)' },
+        { label:'AI Cleared',      value:'68%',    delta:'↑ +4.2% vs last month', color:'var(--green)' },
+        { label:'Avg Days to Close', value:'12.3', delta:'↓ 3.1 days faster',     color:'var(--sky)' },
+        { label:'Cost Per Loan',   value:'$3,420', delta:'↓ $580 vs prior qtr',   color:'var(--amber)' },
+      ],
+    },
+    app: {
+      subtitle: 'Showing Application stage (84 loans)',
+      tableTitle: 'Application Stage Loans',
+      chartSubtitle: 'Application volume vs prior year ($M)',
+      current: [12.1,13.4,15.2,17.8,18.4,16.2,20.1,22.3,19.8,24.1,25.6,28.2],
+      prior:   [9.4, 10.8,12.1,14.2,14.8,13.1,16.4,18.2,15.9,19.8,21.1,23.4],
+      kpis: [
+        { label:'In Application',  value:'84',     delta:'↑ +12 this week',       color:'var(--sky)' },
+        { label:'AI Pre-Scored',   value:'71%',    delta:'↑ +3.1% vs last month', color:'var(--green)' },
+        { label:'Avg Stage Days',  value:'2.1',    delta:'↓ 0.4 days faster',     color:'var(--sky)' },
+        { label:'Docs Received',   value:'63%',    delta:'↑ +8% vs last month',   color:'var(--amber)' },
+      ],
+    },
+    proc: {
+      subtitle: 'Showing Processing stage (61 loans)',
+      tableTitle: 'Processing Stage Loans',
+      chartSubtitle: 'Processing throughput vs prior year ($M)',
+      current: [8.4, 9.2,10.6,12.1,13.2,11.8,14.6,16.2,14.1,17.8,19.3,21.4],
+      prior:   [6.8, 7.4, 8.9,10.2,10.8, 9.6,12.1,13.4,11.8,14.9,16.2,18.1],
+      kpis: [
+        { label:'In Processing',   value:'61',     delta:'↑ +6 this week',        color:'var(--gold)' },
+        { label:'AI Cleared',      value:'74%',    delta:'↑ +5.8% vs last month', color:'var(--green)' },
+        { label:'Avg Stage Days',  value:'4.3',    delta:'↓ 1.2 days faster',     color:'var(--sky)' },
+        { label:'Open Conditions', value:'3.2',    delta:'↓ 0.8 avg per loan',    color:'var(--amber)' },
+      ],
+    },
+    under: {
+      subtitle: 'Showing Underwriting stage (57 loans)',
+      tableTitle: 'Underwriting Stage Loans',
+      chartSubtitle: 'Underwriting decisions vs prior year ($M)',
+      current: [7.2, 8.1, 9.4,10.8,11.6,10.2,13.1,14.8,12.9,15.6,17.2,19.1],
+      prior:   [5.8, 6.6, 7.8, 9.1, 9.6, 8.4,10.8,12.1,10.6,13.2,14.8,16.4],
+      kpis: [
+        { label:'In Underwriting', value:'57',     delta:'↓ -3 this week',        color:'var(--amber)' },
+        { label:'AI Approved',     value:'61%',    delta:'↑ +2.4% vs last month', color:'var(--green)' },
+        { label:'Avg Stage Days',  value:'3.8',    delta:'↓ 0.9 days faster',     color:'var(--sky)' },
+        { label:'Exceptions Open', value:'4',      delta:'↓ 2 cleared today',     color:'var(--red)' },
+      ],
+    },
+    close: {
+      subtitle: 'Showing Closing stage (45 loans)',
+      tableTitle: 'Closing Stage Loans',
+      chartSubtitle: 'Closing volume vs prior year ($M)',
+      current: [5.8, 6.4, 7.2, 8.1, 8.6, 7.4, 9.8,10.8, 9.4,11.6,12.8,14.2],
+      prior:   [4.6, 5.1, 5.9, 6.8, 7.1, 6.2, 8.2, 9.1, 7.8, 9.8,10.9,12.1],
+      kpis: [
+        { label:'In Closing',      value:'45',     delta:'↑ +8 this week',        color:'var(--green)' },
+        { label:'CTC Issued',      value:'84%',    delta:'↑ +6.2% vs last month', color:'var(--green)' },
+        { label:'Avg Stage Days',  value:'1.9',    delta:'↓ 0.5 days faster',     color:'var(--sky)' },
+        { label:'eClosing Rate',   value:'67%',    delta:'↑ +11% vs last month',  color:'var(--gold)' },
+      ],
+    },
+  };
 
-    const goldColor  = '#C8A951';
-    const skyColor   = '#38bdf8';
-
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: months,
-        datasets: [
-          {
-            label: '2026',
-            data: current,
-            borderColor: goldColor,
-            backgroundColor: 'rgba(200,169,81,0.10)',
-            borderWidth: 2.5,
-            pointRadius: 3.5,
-            pointHoverRadius: 6,
-            pointBackgroundColor: goldColor,
-            pointBorderColor: '#0D1F3C',
-            pointBorderWidth: 2,
-            tension: 0.4,
-            fill: true,
-          },
-          {
-            label: '2025',
-            data: prior,
-            borderColor: skyColor,
-            backgroundColor: 'rgba(56,189,248,0.06)',
-            borderWidth: 2,
-            borderDash: [5, 4],
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            pointBackgroundColor: skyColor,
-            pointBorderColor: '#0D1F3C',
-            pointBorderWidth: 2,
-            tension: 0.4,
-            fill: true,
-          }
-        ]
+  // ── Chart ──────────────────────────────────────────────────────
+  const ctx = document.getElementById('origChart').getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        { label:'2026', data:[...stageData.all.current], borderColor:'#C8A951', backgroundColor:'rgba(200,169,81,0.10)', borderWidth:2.5, pointRadius:3.5, pointHoverRadius:6, pointBackgroundColor:'#C8A951', pointBorderColor:'#0D1F3C', pointBorderWidth:2, tension:0.4, fill:true },
+        { label:'2025', data:[...stageData.all.prior],   borderColor:'#38bdf8', backgroundColor:'rgba(56,189,248,0.06)', borderWidth:2, borderDash:[5,4], pointRadius:3, pointHoverRadius:5, pointBackgroundColor:'#38bdf8', pointBorderColor:'#0D1F3C', pointBorderWidth:2, tension:0.4, fill:true }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{display:false},
+        tooltip:{ backgroundColor:'#0D1F3C', borderColor:'rgba(255,255,255,0.12)', borderWidth:1, titleColor:'#e2e8f0', bodyColor:'#94a3b8', padding:10, callbacks:{ label: c => ` ${c.dataset.label}: $${c.parsed.y.toFixed(1)}M` } }
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#0D1F3C',
-            borderColor: 'rgba(255,255,255,0.12)',
-            borderWidth: 1,
-            titleColor: '#e2e8f0',
-            bodyColor: '#94a3b8',
-            padding: 10,
-            callbacks: {
-              label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(1)}M`
-            }
-          }
-        },
-        scales: {
-          x: {
-            grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-            ticks: { color: '#94a3b8', font: { size: 11 } },
-            border: { display: false }
-          },
-          y: {
-            grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-            ticks: {
-              color: '#94a3b8',
-              font: { size: 11 },
-              callback: v => '$' + v + 'M'
-            },
-            border: { display: false }
-          }
-        }
+      scales:{
+        x:{ grid:{color:'rgba(255,255,255,0.05)'}, ticks:{color:'#94a3b8',font:{size:11}}, border:{display:false} },
+        y:{ grid:{color:'rgba(255,255,255,0.05)'}, ticks:{color:'#94a3b8',font:{size:11},callback:v=>'$'+v+'M'}, border:{display:false} }
       }
-    });
+    }
+  });
 
-    // Sidebar item click interactivity
-    document.querySelectorAll('.sidebar-item').forEach(el => {
-      el.addEventListener('click', function () {
-        document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-        this.classList.add('active');
-      });
-    });
-
-    // Nav link click interactivity
+  // ── Nav view switching ─────────────────────────────────────────
+  function switchView(viewId) {
     document.querySelectorAll('.nav-link').forEach(el => {
-      el.addEventListener('click', function () {
-        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-        this.classList.add('active');
-      });
+      el.classList.toggle('active', el.dataset.view === viewId);
     });
-  })();
+    document.querySelectorAll('.view').forEach(el => {
+      el.classList.toggle('active', el.id === 'view-' + viewId);
+    });
+  }
+
+  document.querySelectorAll('.nav-link[data-view]').forEach(el => {
+    el.addEventListener('click', () => switchView(el.dataset.view));
+  });
+  document.querySelectorAll('.sidebar-nav-item[data-view]').forEach(el => {
+    el.addEventListener('click', () => switchView(el.dataset.view));
+  });
+
+  // ── Sidebar stage filtering ────────────────────────────────────
+  function applyStage(stage) {
+    const d = stageData[stage] || stageData.all;
+
+    // highlight sidebar
+    document.querySelectorAll('.sidebar-item').forEach(s =>
+      s.classList.toggle('active', s.dataset.stage === stage)
+    );
+
+    // update subtitle + table title
+    document.getElementById('dash-subtitle').textContent = d.subtitle;
+    document.getElementById('table-title').textContent = d.tableTitle;
+
+    // update KPI tiles
+    d.kpis.forEach((kpi, i) => {
+      document.getElementById('kpi' + i + '-label').textContent = kpi.label;
+      const valEl = document.getElementById('kpi' + i + '-value');
+      valEl.textContent = kpi.value;
+      valEl.style.color = kpi.color;
+      document.getElementById('kpi' + i + '-delta').textContent = kpi.delta;
+    });
+
+    // update chart data + subtitle
+    chart.data.datasets[0].data = [...d.current];
+    chart.data.datasets[1].data = [...d.prior];
+    chart.update('active');
+    const chartSubEl = document.querySelector('#view-dashboard .card-subtitle');
+    if (chartSubEl) chartSubEl.textContent = d.chartSubtitle;
+
+    // filter loan table rows
+    document.querySelectorAll('#loan-tbody tr').forEach(row => {
+      row.classList.toggle('hidden', stage !== 'all' && row.dataset.stage !== stage);
+    });
+  }
+
+  document.querySelectorAll('.sidebar-item[data-stage]').forEach(el => {
+    el.addEventListener('click', () => applyStage(el.dataset.stage));
+  });
+})();
 </script>
 </body>
 </html>
